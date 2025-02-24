@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuit Builder - Voltmentor</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        p {
+            color: #777;
+        }
+
+        #circuit-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        #components-container {
+            width: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .component {
+            background: black;
+            color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: grab;
+            text-align: center;
+        }
+
+        #breadboard {
+            width: 600px;
+            height: 400px;
+            background: url('breadboard.jpg') no-repeat center center;
+            background-size: cover;
+            border: 2px solid black;
+            margin-left: 20px;
+            position: relative;
+        }
+
+        .placed-component {
+            position: absolute;
+            background: white;
+            padding: 5px;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: grab;
+            font-size: 12px;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Circuit Builder</h1>
+    <p>Drag and drop components onto the breadboard</p>
+
+    <div id="circuit-container">
+        <div id="components-container">
+            <h3>Components</h3>
+        </div>
+        <div id="breadboard"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let unlockedLevel = parseInt(localStorage.getItem("unlockedLevel")) || 0;
+            let availableComponents = [];
+
+            if (unlockedLevel >= 1) {
+                availableComponents = [
+                    "Resistor (100Ω)", "Resistor (200Ω)", "Resistor (1kΩ)", "LED (Red)", "LED (Green)", "LED (Yellow)", "Battery (9V)", "Battery (AA)",
+                    "Push Button Switch", "Breadboard (Small)", "Jumper Wires", "Buzzer", "Diode (1N4007)"
+                ];
+            }
+            if (unlockedLevel >= 2) {
+                availableComponents.push(
+                    "Transistor (BC547)", "Transistor (2N2222)", "Capacitor (10µF)", "Capacitor (100µF)", "Capacitor (470µF)", "IC 555 Timer",
+                    "Potentiometer (10kΩ)", "LDR (Light Dependent Resistor)", "Speaker (8Ω)", "Infrared Sensor", "Relay (5V)"
+                );
+            }
+            if (unlockedLevel >= 3) {
+                availableComponents.push(
+                    "Arduino Uno", "Bluetooth Module (HC-05)", "Servo Motor (MG90S)", "Ultrasonic Sensor (HC-SR04)", "Motor Driver (L298N)",
+                    "LCD Display (16x2)", "EEPROM Module", "IoT Module (ESP8266)"
+                );
+            }
+
+            const componentsDiv = document.getElementById("components-container");
+            availableComponents.forEach(component => {
+                let compElement = document.createElement("div");
+                compElement.innerText = component;
+                compElement.classList.add("component");
+                compElement.draggable = true;
+                compElement.addEventListener("dragstart", dragStart);
+                componentsDiv.appendChild(compElement);
+            });
+
+            const breadboard = document.getElementById("breadboard");
+            breadboard.addEventListener("dragover", allowDrop);
+            breadboard.addEventListener("drop", drop);
+        });
+
+        function dragStart(event) {
+            event.dataTransfer.setData("text/plain", event.target.innerText);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            let data = event.dataTransfer.getData("text/plain");
+
+            let newElement = document.createElement("div");
+            newElement.innerText = data;
+            newElement.classList.add("placed-component");
+
+            let rect = event.target.getBoundingClientRect();
+            let x = Math.round((event.clientX - rect.left) / 10) * 10; // Snap to grid
+            let y = Math.round((event.clientY - rect.top) / 10) * 10;
+
+            newElement.style.left = x + "px";
+            newElement.style.top = y + "px";
+
+            newElement.setAttribute("draggable", true);
+            newElement.addEventListener("dragstart", dragStartPlaced);
+            newElement.addEventListener("contextmenu", removeComponent);
+
+            document.getElementById("breadboard").appendChild(newElement);
+        }
+
+        function dragStartPlaced(event) {
+            event.dataTransfer.setData("text/plain", event.target.innerText);
+            event.target.remove(); // Remove element from the board when dragged again
+        }
+
+        function removeComponent(event) {
+            event.preventDefault();
+            event.target.remove();
+        }
+    </script>
+</body>
+</html>
