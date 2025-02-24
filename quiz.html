@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electronics Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Electronics Quiz</h1>
+        <p>Answer correctly to unlock components!</p>
+        <div id="timer">Time Left: <span id="time">10</span>s</div>
+        <div id="question-container">
+            <p id="question-text"></p>
+            <div id="answer-buttons" class="btn-container"></div>
+        </div>
+        <p id="score-display">Score: <span id="score">0</span></p>
+        <button id="next-btn" onclick="nextQuestion()">Next</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
